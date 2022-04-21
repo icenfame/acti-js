@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Acti.js</title>
+</head>
+
+<body>
+  <div id="app"></div>
+
+  <script>
+    function App({ props, view }) {
+      console.log("#App", view);
+
+      // Append to app
+      const app = document.getElementById("app");
+      app.innerHTML = '';
+      app.appendChild(view)
+    }
+
+    function View(props) {
+      console.log("#View", props);
+
+      // Create parent
+      const view = document.createElement("div");
+
+      // Styles
+      view.style.display = 'flex';
+      view.style.alignItems = 'flex-start';
+      view.style.width = `${props.width}px`;
+      view.style.height = `${props.height}px`;
+      view.style.backgroundColor = props.backgroundColor;
+      view.style.margin = `${props.margin}px`;
+      view.style.padding = `${props.padding}px`;
+
+      // Text
+      if (props.text) {
+        const text = document.createTextNode(props.text);
+        view.appendChild(text)
+      }
+
+      // Children
+      if (props.children) {
+        console.log("\t@children", props.children)
+
+        props.children.forEach(child => {
+          view.appendChild(child.view);
+        });
+      }
+
+      return { props: props, view: view };
+    }
+
+    function Button(props) {
+      console.log("#Button", props);
+
+      // Create parent
+      const button = document.createElement("button");
+
+      // Styles
+      button.style.width = `${props.width}px`;
+      button.style.height = `${props.height}px`;
+      button.style.backgroundColor = props.backgroundColor;
+      button.style.margin = `${props.margin}px`;
+      button.style.padding = `${props.padding}px`;
+
+      // Text
+      if (props.text) {
+        const text = document.createTextNode(props.text);
+        button.appendChild(text)
+      }
+
+      // Click event
+      if (props.click) {
+        button.onclick = () => ClickHandler(props.click);
+      }
+
+      // Children
+      if (props.children) {
+        console.log("\t@children", props.children)
+
+        props.children.forEach(child => {
+          view.appendChild(child.view);
+        });
+      }
+
+      return { props: props, view: button };
+    }
+
+    class State {
+      constructor(data) {
+        this.state = data;
+      }
+
+      get() {
+        return this.state;
+      }
+
+      set(data) {
+        this.state = data;
+        return this;
+      }
+    }
+
+    const appState = new State().set("hello");
+
+    let prevState = appState.get();
+
+    function ClickHandler(callback) {
+      callback();
+
+      currentState = appState.get()
+      console.log("#ClickHandler", currentState)
+
+      if (prevState !== currentState) {
+        Render();
+        prevState = currentState;
+      }
+    }
+
+    function Render() {
+      App(
+        View({
+          width: 400,
+          height: 200,
+          backgroundColor: "black",
+          children: [
+            View({
+              width: 100,
+              height: 100,
+              backgroundColor: "red",
+              children: [
+                View({
+                  width: 50,
+                  height: 50,
+                  backgroundColor: "yellow",
+                  margin: 25,
+                })
+              ]
+            }),
+            View({
+              width: 100,
+              height: 100,
+              backgroundColor: "green",
+              text: appState.get()
+            }),
+            View({
+              width: 100,
+              height: 100,
+              backgroundColor: "blue"
+            }),
+            Button({
+              text: "Click",
+              click: () => {
+                console.log("Clicked button")
+                appState.set("123")
+              }
+            })
+          ]
+        })
+      );
+    }
+
+    Render();
+  </script>
+</body>
+
+</html>
