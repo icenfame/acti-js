@@ -75,7 +75,7 @@
 
       // Click event
       if (props.click) {
-        button.onclick = () => ClickHandler(props.click);
+        button.onclick = props.click;
       }
 
       // Children
@@ -92,34 +92,35 @@
 
     class State {
       constructor(data) {
-        this.state = data;
+        this.currentState = null;
+        this.previousState = null;
+
+        this.set(data);
       }
 
       get() {
-        return this.state;
+        console.log("#State.get", this.currentState, this.previousState);
+        return this.currentState;
       }
 
       set(data) {
-        this.state = data;
+        this.previousState = this.currentState;
+        this.currentState = data;
+
+        console.log("#State.set", this.currentState, this.previousState)
+
+        if (this.previousState !== this.currentState) {
+          // Render();
+          this.previousState = this.currentState;
+        }
+
         return this;
       }
     }
 
-    const appState = new State().set("hello");
+    const appState = new State("0");
 
     let prevState = appState.get();
-
-    function ClickHandler(callback) {
-      callback();
-
-      currentState = appState.get()
-      console.log("#ClickHandler", currentState)
-
-      if (prevState !== currentState) {
-        Render();
-        prevState = currentState;
-      }
-    }
 
     function Render() {
       App(
@@ -138,6 +139,7 @@
                   height: 50,
                   backgroundColor: "yellow",
                   margin: 25,
+                  text: appState.get()
                 })
               ]
             }),
@@ -145,7 +147,6 @@
               width: 100,
               height: 100,
               backgroundColor: "green",
-              text: appState.get()
             }),
             View({
               width: 100,
@@ -156,7 +157,7 @@
               text: "Click",
               click: () => {
                 console.log("Clicked button")
-                appState.set("123")
+                appState.set(+appState.get() + 1)
               }
             })
           ]
